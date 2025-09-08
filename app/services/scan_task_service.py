@@ -6,7 +6,7 @@ from app.domain.models import ScanTask
 from app.repositories.scan_task_repository import ScanTaskRepository
 
 from uuid import uuid4
-
+from app.services.monitor_manager import monitor_manager
 
 class ScanTaskService:
     def __init__(self, session: AsyncSession):
@@ -45,7 +45,6 @@ class ScanTaskService:
         await self.session.commit()
         await self.session.refresh(task)
         # 创建完成后，若启用则启动监控
-        from app.services.monitor_manager import monitor_manager
         if task.is_enabled == 1:
             await monitor_manager.start_task(
                 task_id=task.id,
@@ -100,7 +99,7 @@ class ScanTaskService:
         await self.session.refresh(task)
 
         # 根据变更联动监控
-        from app.services.monitor_manager import monitor_manager
+      
         if old_is_enabled != task.is_enabled:
             if task.is_enabled == 1:
                 await monitor_manager.start_task(
@@ -127,7 +126,6 @@ class ScanTaskService:
         if not task:
             return False
         # 先停掉监控，再删除
-        from app.services.monitor_manager import monitor_manager
         await monitor_manager.stop_task(task.id)
         await self.repo.delete(task)
         await self.session.commit()

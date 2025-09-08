@@ -18,7 +18,6 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     await init_db(settings)
     await init_redis(settings)
     # 启动后恢复任务
-    from app.services.monitor_manager import monitor_manager
     await monitor_manager.restore_on_startup()
     try:
         yield

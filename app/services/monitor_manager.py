@@ -11,7 +11,6 @@ from watchdog.events import FileSystemEventHandler, FileCreatedEvent, FileMovedE
 from watchdog.observers import Observer
 from app.storage.redis_client import get_redis
 
-
 @dataclass
 class _Worker:
     task: asyncio.Task
@@ -121,7 +120,7 @@ class MonitorManager:
 
         if scan_dir is None or not str(scan_dir).strip():
             print(f"[task={task_id} sid={scan_task_id}] 扫描目录为空，工作协程空闲")
-            while not stop_event.is_set():
+            while not stop_event.is_set() :
                 try:
                     await asyncio.wait_for(stop_event.wait(), timeout=interval)
                 except asyncio.TimeoutError:
@@ -152,14 +151,13 @@ class MonitorManager:
         loop = asyncio.get_running_loop()
         queue: "asyncio.Queue[Path]" = asyncio.Queue(maxsize=10000)
 
-        # Redis：加载该任务已处理过的文件集合（以字符串路径保存）
+        # Redis：加载该任务已处理过的文件集合（以字符串路径保存）       
         redis = await get_redis()
         redis_key = f"scan:seen:{scan_task_id}"
         processed_strs = await redis.smembers(redis_key)
         seen: Set[str] = set(processed_strs)
 
-        from watchdog.events import FileSystemEventHandler
-        from watchdog.observers import Observer
+
 
         class _NewFileHandler(FileSystemEventHandler):
             def on_created(self, event) -> None:

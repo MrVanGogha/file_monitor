@@ -120,7 +120,6 @@ class ScanTaskService:
                     scan_mode=task.scan_mode,
                 )
         return task
-
     async def delete_task(self, task_id: int) -> bool:
         task = await self.repo.get_by_id(task_id)
         if not task:
